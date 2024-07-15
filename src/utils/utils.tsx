@@ -1,6 +1,6 @@
 import { TableColumn } from "react-data-table-component";
 
-type Datacompo = {
+export type Datacompo = {
     SubDiario: string,
     "Comprobante Concar": string,
     Moneda: string,
@@ -33,12 +33,8 @@ type Datacompo = {
     "Centro de Costo": number|string,
     "Anexo de Referencia": number|string
 }
-const columns: TableColumn<Datacompo>[] = [
-    {	
-        name:"Editar - Eliminar",		
-        cell: () => <div className=" flex gap-2"><button className=" bg-sky-600 rounded-md text-white p-1"><svg  xmlns="http://www.w3.org/2000/svg"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  strokeWidth="2"  strokeLinecap="round"  strokeLinejoin="round"  className=" size-4"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 20h4l10.5 -10.5a2.828 2.828 0 1 0 -4 -4l-10.5 10.5v4" /><path d="M13.5 6.5l4 4" /></svg></button><button className=" bg-red-600 rounded-md text-white p-1"><svg  xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  strokeWidth="2"  strokeLinecap="round"  strokeLinejoin="round"  className=" size-4"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 7l16 0" /><path d="M10 11l0 6" /><path d="M14 11l0 6" /><path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12" /><path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3" /></svg></button></div>,  
 
-    },
+const columns: TableColumn<Datacompo>[] = [
     {
         name:"SubDiario",
         selector: row => row.SubDiario
@@ -315,6 +311,20 @@ export function FormatearJson(Json:any[]) {
                 return "";
             }
         };
+        const NumeroIdentidad = () => {
+            if (compo["Nro Doc Identidad"] === "10000000003") {
+                return "0000";
+            } else {
+                compo["Nro Doc Identidad"];
+            }
+        };
+        const RazonSocial = ()=>{
+            if(compo["Apellidos Nombres/ Razón Social"]== "-"){
+                return "CLIENTES VARIOS"
+            }else{
+                return compo["Apellidos Nombres/ Razón Social"]
+            }
+        }
         return {
             SubDiario: compo.SubDiario,
             "Comprobante Concar": `0${mes + (index + 1)}`,
@@ -325,8 +335,8 @@ export function FormatearJson(Json:any[]) {
             "Serie de documento": compo["Serie del CDP"],
             "Número de documento": compo["Nro CP o Doc. Nro Inicial (Rango)"],
             "Tipo de documento de Identidad": compo["Tipo Doc Identidad"],
-            "Número de documento de identidad": compo["Nro Doc Identidad"],
-            "Apellidos y Nombres, denominación o razón social del proveedor": compo["Apellidos Nombres/ Razón Social"],
+            "Número de documento de identidad": NumeroIdentidad(),
+            "Apellidos y Nombres, denominación o razón social del proveedor": RazonSocial(),
             "Valor facturado de la exportación": vFE(),
             "Base imponible de la operación gravada": bIoG(),
             "Importe total de la operación Exonerada": monE(),

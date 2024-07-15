@@ -1,16 +1,19 @@
-import { useState,  ChangeEvent, FormEvent } from 'react';
-import DataTable from 'react-data-table-component';
-import columns, { conditionalRowStyles, FormatearJson, rowDisabledCriteria, rowSelectCritera } from '../utils/utils';
+import { useState,  ChangeEvent, FormEvent, useEffect } from 'react';
+import DataTable, { TableColumn } from 'react-data-table-component';
+import columns, { conditionalRowStyles, Datacompo, FormatearJson, rowDisabledCriteria, rowSelectCritera } from '../utils/utils';
+import EditComprobante from './EditComprobante';
 
 export default function Ventas(){
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
     const [ventasData, setVentasData] = useState<any[]>([]); 
-    const [ subDiario, setSubDiario ] = useState<string>("05")
+    const [subDiario, setSubDiario] = useState<string>("05")
     const [cuentaConPorCo, setcuentaConPorCo] = useState<string>("121201")
     const [cuentaConIngreso, setcuentaConIngreso] = useState<string>("701101")
     const [Area, setArea]= useState<string>("")
     const [Costo, setCosto] = useState<string>("")
     const [Referencia, setReferencia] = useState<string>("")
+    const [onEdit, setEdit]= useState<boolean>(false)
+    const [rowE, setRowE]=useState<Datacompo>(ventasData[0])
 
     const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
         const file = event.target.files?.[0]
@@ -60,7 +63,7 @@ export default function Ventas(){
                 console.log(newData)
             }
         };
-        fileReader.readAsText(selectedFile);
+        fileReader.readAsText(selectedFile);       
     };
 
     const paginationComponentOptions = {
@@ -69,10 +72,44 @@ export default function Ventas(){
         selectAllRowsItem: true,
         selectAllRowsItemText: 'Todos',
     };
-      
     
+    const onEditFunt = (row:Datacompo)=>{
+        setEdit(true)
+        setRowE({
+            ...row
+        })
+    }
+
+    useEffect(()=>{
+        columns.unshift({	
+            name:"Editar - Eliminar",		
+            cell: (row:Datacompo) =>( 
+            <div className=" flex gap-2 justify-evenly w-full">
+                <button 
+                    className=" bg-sky-600 rounded-md text-white p-1"
+                    onClick={()=>onEditFunt(row)}
+                >
+                    <svg  xmlns="http://www.w3.org/2000/svg"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  strokeWidth="2"  strokeLinecap="round"  strokeLinejoin="round"  className=" size-4">
+                    <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                    <path d="M4 20h4l10.5 -10.5a2.828 2.828 0 1 0 -4 -4l-10.5 10.5v4" />
+                    <path d="M13.5 6.5l4 4" />
+                    </svg>
+                </button>
+                <button className=" bg-red-600 rounded-md text-white p-1">
+                    <svg  xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  strokeWidth="2"  strokeLinecap="round"  strokeLinejoin="round"  className=" size-4">
+                    <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                    <path d="M4 7l16 0" /><path d="M10 11l0 6" />
+                    <path d="M14 11l0 6" /><path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12" />
+                    <path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3" />
+                    </svg>
+                </button>
+            </div>
+            )
+        })      
+    },[])
+
     return (
-        <div className=" w-full h-full flex overflow-hidden text-black/75">
+        <div className=" w-full h-full flex overflow-hidden text-black/75 relative">
             <article className='  w-1/2 items-center flex flex-col p-4 overflow-auto'>
                 <h1 className=' mx-auto text-center   text-2xl'>Generar Exportacion Excel Sire para registro de ventas</h1>
                 <form 
@@ -197,6 +234,9 @@ export default function Ventas(){
                     </button> 
                 </div>
             </div>
+            {
+                onEdit&&(<EditComprobante setEdit={setEdit} rowE={rowE}/>)
+            }
         </div>
     )
 }

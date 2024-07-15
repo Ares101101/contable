@@ -14,9 +14,7 @@ function App() {
     const newLayout = layout.map((_,e)=> e === i)
     newLayout?SetLayout(newLayout):console.log("no se encontro el layout")
   }
-
-
-
+  
   return (
     <div className=" App" >
       <Header  layout={layout} Cambio={Cambio}/>
