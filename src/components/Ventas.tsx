@@ -5,7 +5,7 @@ import EditComprobante from './EditComprobante';
 
 export default function Ventas(){
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
-    const [ventasData, setVentasData] = useState<any[]>([]); 
+    const [ventasData, setVentasData] = useState<Datacompo[]>([]); 
     const [subDiario, setSubDiario] = useState<string>("05")
     const [cuentaConPorCo, setcuentaConPorCo] = useState<string>("121201")
     const [cuentaConIngreso, setcuentaConIngreso] = useState<string>("701101")
@@ -13,7 +13,7 @@ export default function Ventas(){
     const [Costo, setCosto] = useState<string>("")
     const [Referencia, setReferencia] = useState<string>("")
     const [onEdit, setEdit]= useState<boolean>(false)
-    const [rowE, setRowE]=useState<Datacompo>(ventasData[0])
+    const [ComproConcar, setComproConcar]= useState<string>("")
 
     const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
         const file = event.target.files?.[0]
@@ -73,11 +73,9 @@ export default function Ventas(){
         selectAllRowsItemText: 'Todos',
     };
     
-    const onEditFunt = (row:Datacompo)=>{
+    const onEditFunt = (row:Datacompo["Comprobante Concar"])=>{
+        setComproConcar(row)
         setEdit(true)
-        setRowE({
-            ...row
-        })
     }
 
     useEffect(()=>{
@@ -87,7 +85,7 @@ export default function Ventas(){
             <div className=" flex gap-2 justify-evenly w-full">
                 <button 
                     className=" bg-sky-600 rounded-md text-white p-1"
-                    onClick={()=>onEditFunt(row)}
+                    onClick={()=>onEditFunt(row["Comprobante Concar"])}
                 >
                     <svg  xmlns="http://www.w3.org/2000/svg"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  strokeWidth="2"  strokeLinecap="round"  strokeLinejoin="round"  className=" size-4">
                     <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
@@ -235,7 +233,14 @@ export default function Ventas(){
                 </div>
             </div>
             {
-                onEdit&&(<EditComprobante setEdit={setEdit} rowE={rowE}/>)
+                onEdit&&(
+                <EditComprobante 
+                    setComproConcar={setComproConcar} 
+                    ComproConcar={ComproConcar} 
+                    ventasData={ventasData}  
+                    setEdit={setEdit}
+                    setVentasData={setVentasData}
+                    />)
             }
         </div>
     )

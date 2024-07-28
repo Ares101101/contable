@@ -1,10 +1,50 @@
+import { ChangeEvent, useEffect, useState } from "react"
 import type { EditComprobante } from "../types/types"
+import { Datacompo } from "../utils/utils"
 
  const EditComprobante:React.FC<EditComprobante> =(props)=> {
     const{
         setEdit,
-        rowE
+        ventasData,
+        ComproConcar,
+        setComproConcar,
+        setVentasData
     }=props
+    const [venta, setVenta] =useState<Datacompo>(ventasData[0])
+
+    useEffect(()=>{
+        ventasData.map((venta)=>{
+            if (venta["Comprobante Concar"]=== ComproConcar){
+                return setVenta(venta)
+            }
+        })
+    },[ComproConcar])
+
+    const handleSubmit =()=>{
+        const newsVentas = ventasData.map((venta)=>{
+            if(venta["Comprobante Concar"]=== venta["Comprobante Concar"]){
+                return venta
+            }else {
+                return venta
+            }
+        })
+        setVentasData(newsVentas)
+    }
+    const handleChange = (event: ChangeEvent<HTMLInputElement>)=>{
+        const {name, value} = event.target
+        setVenta((prevVenta)=>({
+            ...prevVenta,
+            [name]:value
+        }))
+        console.log(venta)
+    }
+    const formatDateForInput = (date: string): string => {
+        if(!date){
+            return ""
+        }
+        const [day, month, year] = date.split('/');
+        return `${year}-${month}-${day}`;
+      };
     return (
         <div  className=" overflow-auto flex fixed top-7 right-0 left-0 z-50 justify-center items-center w-full inset-0 h-100% max-h-full backdrop-blur-sm bg-black/10">
             <div className=" p-4 w-full  max-h-full flex items-center justify-center">     
@@ -22,31 +62,63 @@ import type { EditComprobante } from "../types/types"
                             </svg>        
                         </button>
                     </div>        
-                    <form className="p-5 w-full">
+                    <form 
+                        className="p-5 w-full"
+                        onSubmit={handleSubmit}
+                    >
                         <div className="grid gap-4 mb-4 grid-cols-4">
                             <div className="col-span-1">
                                 <label htmlFor="name" className="block mb-2 text-sm font-medium text-gray-900 ">Subdiario</label>
-                                <input type="text" name="name" id="name" className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5  " placeholder={rowE.SubDiario}/>
+                                <input 
+                                type="text" 
+                                name="SubDiario"
+                                className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5  "                               
+                                defaultValue={venta.SubDiario}
+                                onChange={handleChange}
+                                />
                             </div>
                             <div className="col-span-1">
                                 <label htmlFor="name" className="block mb-2 text-sm font-medium text-gray-900 ">Comprobante</label>
-                                <input type="text" name="name" id="name" className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5  " placeholder={rowE["Comprobante Concar"]} />
+                                <input 
+                                type="text" 
+                                name="Comprobante Concar"                               
+                                className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5  " 
+                                defaultValue={venta["Comprobante Concar"]}
+                                onChange={handleChange} />
                             </div>
                             <div className="col-span-1">
                                 <label htmlFor="name" className="block mb-2 text-sm font-medium text-gray-900 ">Moneda</label>
-                                <input type="text" name="name" id="name" className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5  " placeholder={rowE.Moneda} />
+                                <input 
+                                type="text"
+                                name="Moneda"                                 
+                                className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5  " 
+                                defaultValue={venta.Moneda}
+                                onChange={handleChange}  />
                             </div>
                             <div className="col-span-1">
                                 <label htmlFor="name" className="block mb-2 text-sm font-medium text-gray-900 ">Fecha de emisión</label>
-                                <input type="text" name="name" id="name" className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5  " placeholder={rowE["Fecha de emisión"]} />
+                                <input 
+                                type="date" 
+                                name="Fecha de emisión"
+                                className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 " 
+                                defaultValue={formatDateForInput(venta["Fecha de emisión"])} 
+                                onChange={handleChange}
+                                />
                             </div>
                             <div className="col-span-1">
                                 <label htmlFor="name" className="block mb-2 text-sm font-medium text-gray-900 ">Fecha de Vencimiento</label>
-                                <input type="text" name="name" id="name" className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5  " placeholder={rowE["Fecha Vcto/Pago"]} />
+                                <input 
+                                type="date" 
+                                name="name"  
+                                className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5  " 
+                                defaultValue={formatDateForInput(venta["Fecha Vcto/Pago"])}
+                                onChange={handleChange} />
                             </div>
                             <div className="col-span-1">
                                 <label htmlFor="category" className="block mb-2 text-sm font-medium text-gray-900 ">Tipo de documento</label>
-                                <select id="category" className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5  ">                                
+                                <select 
+                                id="category" 
+                                className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5  ">                                
                                     <option defaultValue="FT">Factura</option>
                                     <option defaultValue="BV">Boleta</option>
                                     <option defaultValue="NA">N.Credito</option>
@@ -55,11 +127,15 @@ import type { EditComprobante } from "../types/types"
                             </div>
                             <div className="col-span-1">
                                 <label htmlFor="name" className="block mb-2 text-sm font-medium text-gray-900 ">Serie de documento</label>
-                                <input type="text" name="name" id="name" className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5  " placeholder={rowE["Serie de documento"]} />
+                                <input type="text" name="name"  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5  " 
+                                value={venta["Serie de documento"]}
+                                placeholder={venta["Serie de documento"]} />
                             </div>
                             <div className="col-span-1">
                                 <label htmlFor="name" className="block mb-2 text-sm font-medium text-gray-900 ">Número de documento</label>
-                                <input type="text" name="name" id="name" className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5  " placeholder={rowE["Número de documento"]} />
+                                <input type="text" name="name"  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5  " 
+                                value={venta["Número de documento"]}
+                                placeholder={venta["Número de documento"]} />
                             </div>
                             <div className="col-span-1">
                                 <label htmlFor="name" className="block mb-2 text-sm font-medium text-gray-900 ">Tipo de D.I</label>
@@ -74,91 +150,114 @@ import type { EditComprobante } from "../types/types"
                             </div>
                             <div className="col-span-1">
                                 <label htmlFor="name" className="block mb-2 text-sm font-medium text-gray-900 ">N° de D.I</label>
-                                <input type="text" name="name" id="name" className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5  " placeholder={rowE["Número de documento de identidad"]} />
+                                <input type="text" name="name"  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5  " 
+                                value={venta["Número de documento de identidad"]}
+                                placeholder={venta["Número de documento de identidad"]} />
                             </div>
                             <div className="col-span-2">
                                 <label htmlFor="name" className="block mb-2 text-sm font-medium text-gray-900 ">Razón Social Proveedor</label>
-                                <input type="text" name="name" id="name" className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5  " placeholder={rowE["Apellidos y Nombres, denominación o razón social del proveedor"]} />
+                                <input type="text" name="name"  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5  " 
+                                value={venta["Apellidos y Nombres, denominación o razón social del proveedor"]}
+                                placeholder={venta["Apellidos y Nombres, denominación o razón social del proveedor"]} />
                             </div>
                             <div className="col-span-1">
                                 <label htmlFor="name" className="block mb-2 text-sm font-medium text-gray-900 ">V. Exportación</label>
-                                <input type="number" name="name" id="name" className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5  " defaultValue={rowE["Valor facturado de la exportación"]} 
-                                placeholder={String(rowE["Valor facturado de la exportación"])}
+                                <input type="number" name="name"  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5  " 
+                                defaultValue={venta["Valor facturado de la exportación"]}
+                                value={venta["Valor facturado de la exportación"]} 
                                 />
                                 
 
                             </div>
                             <div className="col-span-1">
-                                <label htmlFor="name" className="block mb-2 text-sm font-medium text-gray-900 ">B.I</label>
-                                <input type="number" name="name" id="name" className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5  " defaultValue={rowE["Base imponible de la operación gravada"]} 
-                                placeholder={String(rowE["Base imponible de la operación gravada"])}
+                                <label 
+                                htmlFor="name" 
+                                className="block mb-2 text-sm font-medium text-gray-900 ">B.I</label>
+                                <input 
+                                type="number" 
+                                name="name" 
+                                 
+                                className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5  " 
+                                defaultValue={venta["Base imponible de la operación gravada"]} 
+                                value={venta["Base imponible de la operación gravada"]}
                                 />
                             </div>
                             <div className="col-span-1">
                                 <label htmlFor="name" className="block mb-2 text-sm font-medium text-gray-900 ">V. Exonerada</label>
-                                <input type="number" name="name" id="name" className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5  " defaultValue={rowE["Importe total de la operación Exonerada"]} 
-                                placeholder={String(rowE["Importe total de la operación Exonerada"])}
+                                <input type="number" name="name"  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5  " 
+                                defaultValue={venta["Importe total de la operación Exonerada"]} 
+                                value={venta["Importe total de la operación Exonerada"]} 
                                 />
                             </div>
                             <div className="col-span-1">
                                 <label htmlFor="name" className="block mb-2 text-sm font-medium text-gray-900 ">V. Inafecta</label>
-                                <input type="number" name="name" id="name" className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5  " defaultValue={rowE["Importe total de la operación Inafecta"]} 
-                                placeholder={String(rowE["Importe total de la operación Inafecta"])}
+                                <input type="number" name="name"  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5  " 
+                                defaultValue={venta["Importe total de la operación Inafecta"]} 
+                                value={venta["Importe total de la operación Inafecta"]}
                                 />
                                 
                             </div>
                             <div className="col-span-1">
                                 <label htmlFor="name" className="block mb-2 text-sm font-medium text-gray-900 ">ISC</label>
-                                <input type="number" name="name" id="name" className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5  " defaultValue={rowE.ISC}
-                                placeholder={String(rowE.ISC)}
+                                <input type="number" name="name"  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5  " 
+                                defaultValue={venta.ISC}
+                                value={venta.ISC}
                                 />
                             </div>
                             <div className="col-span-1">
                                 <label htmlFor="name" className="block mb-2 text-sm font-medium text-gray-900 ">IGV Y/O IPM</label>
-                                <input type="number" name="name" id="name" className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5  " defaultValue={rowE["IGV Y/O IPM"]} 
-                                placeholder={String(rowE["IGV Y/O IPM"])}
+                                <input type="number" name="name"  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5  " 
+                                defaultValue={venta["IGV Y/O IPM"]} 
+                                value={venta["IGV Y/O IPM"]} 
                                 />
                             </div>
                             <div className="col-span-1">
                                 <label htmlFor="name" className="block mb-2 text-sm font-medium text-gray-900 ">ICBPER</label>
-                                <input type="number" name="name" id="name" className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5  " defaultValue={rowE.ICBPER} 
-                                placeholder={String(rowE.ICBPER)}
+                                <input type="number" name="name"  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5  " 
+                                defaultValue={venta.ICBPER} 
+                                value={venta.ICBPER} 
                                 />
                             </div>
                             <div className="col-span-1">
                                 <label htmlFor="name" className="block mb-2 text-sm font-medium text-gray-900 ">Otros tributos</label>
-                                <input type="number" name="name" id="name" className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5  " defaultValue={rowE["Otros tributos"]} 
-                                placeholder={String(rowE["Otros tributos"])}
+                                <input type="number" name="name"  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5  " 
+                                defaultValue={venta["Otros tributos"]} 
+                                value={venta["Otros tributos"]} 
                                 />
                             </div>
                             <div className="col-span-1">
                                 <label htmlFor="name" className="block mb-2 text-sm font-medium text-gray-900 "> Importe total</label>
-                                <input type="number" name="name" id="name" className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5  " defaultValue={rowE["Importe total"]} 
-                                placeholder={String(rowE["Importe total"])}
+                                <input type="number" name="name"  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5  " 
+                                defaultValue={venta["Importe total"]} 
+                                value={venta["Importe total"]} 
                                 />
                             </div>
                             <div className="col-span-1">
                                 <label htmlFor="name" className="block mb-2 text-sm font-medium text-gray-900 "> Tipo de Conversión</label>
-                                <input type="text" name="name" id="name" className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5  " defaultValue={rowE["Tipo de Conversión"]}
-                                placeholder={String(rowE["Tipo de Conversión"])} 
+                                <input type="text" name="name"  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5  " 
+                                defaultValue={venta["Tipo de Conversión"]}
+                                value={venta["Tipo de Conversión"]}
                                 />
                             </div>
                             <div className="col-span-1">
                                 <label htmlFor="name" className="block mb-2 text-sm font-medium text-gray-900 "> Tipo de cambio</label>
-                                <input type="text" name="name" id="name" className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5  " defaultValue={rowE["Tipo de cambio"]} 
-                                placeholder={String(rowE["Tipo de cambio"])}
+                                <input type="text" name="name"  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5  " 
+                                defaultValue={venta["Tipo de cambio"]} 
+                                value={venta["Tipo de cambio"]} 
                                 />
                             </div>
                             <div className="col-span-1">
                                 <label htmlFor="name" className="block mb-2 text-sm font-medium text-gray-900 "> Cuenta contable por cobrar</label>
-                                <input type="text" name="name" id="name" className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5  " defaultValue={rowE["Cuenta contable por cobrar"]} 
-                                placeholder={String(rowE["Cuenta contable por cobrar"])}
+                                <input type="text" name="name"  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5  " 
+                                defaultValue={venta["Cuenta contable por cobrar"]} 
+                                value={venta["Cuenta contable por cobrar"]} 
                                 />
                             </div>
                             <div className="col-span-1">
                                 <label htmlFor="name" className="block mb-2 text-sm font-medium text-gray-900 "> Cuenta contable de ingresos</label>
-                                <input type="text" name="name" id="name" className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5  " defaultValue={rowE["Cuenta contable de ingresos"]} 
-                                placeholder={String(rowE["Cuenta contable de ingresos"])}
+                                <input type="text" name="name"  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5  " 
+                                defaultValue={venta["Cuenta contable de ingresos"]} 
+                                value={venta["Cuenta contable de ingresos"]}
                                 />
                             </div>   
                         </div>

@@ -33,7 +33,7 @@ export type Datacompo = {
     "Centro de Costo": number|string,
     "Anexo de Referencia": number|string
 }
-
+ 
 const columns: TableColumn<Datacompo>[] = [
     {
         name:"SubDiario",
@@ -311,11 +311,13 @@ export function FormatearJson(Json:any[]) {
                 return "";
             }
         };
-        const NumeroIdentidad = () => {
+        const NumeroIdentidad = ():string => {
             if (compo["Nro Doc Identidad"] === "10000000003") {
                 return "0000";
+            }if(compo["Nro Doc Identidad"]=== undefined){
+                return ""
             } else {
-                compo["Nro Doc Identidad"];
+                return compo["Nro Doc Identidad"];
             }
         };
         const RazonSocial = ()=>{
