@@ -7,38 +7,21 @@ import { Datacompo } from "../utils/utils"
         setEdit,
         ventasData,
         ComproConcar,
-        setComproConcar,
-        setVentasData
+        setVentasData,
+        guardarComprobante,
+        setComproConcar
     }=props
-    const [venta, setVenta] =useState<Datacompo>(ventasData[0])
 
-    useEffect(()=>{
-        ventasData.map((venta)=>{
-            if (venta["Comprobante Concar"]=== ComproConcar){
-                return setVenta(venta)
-            }
-        })
-    },[ComproConcar])
 
-    const handleSubmit =()=>{
-        const newsVentas = ventasData.map((venta)=>{
-            if(venta["Comprobante Concar"]=== venta["Comprobante Concar"]){
-                return venta
-            }else {
-                return venta
-            }
-        })
-        setVentasData(newsVentas)
-    }
     const handleChange = (event: ChangeEvent<HTMLInputElement>)=>{
         const {name, value} = event.target
-        setVenta((prevVenta)=>({
-            ...prevVenta,
-            [name]:value
-        }))
-        console.log(venta)
+        setComproConcar((arg)=>(arg?{
+            ...arg,
+            [name]: value,
+        }:undefined))
+        console.log(ComproConcar)
     }
-    const formatDateForInput = (date: string): string => {
+    const formatDateForInput = (date: string | undefined): string => {
         if(!date){
             return ""
         }
@@ -64,54 +47,59 @@ import { Datacompo } from "../utils/utils"
                     </div>        
                     <form 
                         className="p-5 w-full"
-                        onSubmit={handleSubmit}
+                        onSubmit={()=>{guardarComprobante(ComproConcar)}}
                     >
                         <div className="grid gap-4 mb-4 grid-cols-4">
                             <div className="col-span-1">
-                                <label htmlFor="name" className="block mb-2 text-sm font-medium text-gray-900 ">Subdiario</label>
+                                <label htmlFor="Subdiario" className="block mb-2 text-sm font-medium text-gray-900 ">Subdiario</label>
                                 <input 
                                 type="text" 
                                 name="SubDiario"
                                 className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5  "                               
-                                defaultValue={venta.SubDiario}
+                                value={ComproConcar?.SubDiario}
                                 onChange={handleChange}
                                 />
                             </div>
                             <div className="col-span-1">
-                                <label htmlFor="name" className="block mb-2 text-sm font-medium text-gray-900 ">Comprobante</label>
+                                <label 
+                                    htmlFor="Comprobante Concar" 
+                                    className="block mb-2 text-sm font-medium text-gray-900 "
+                                >
+                                    Comprobante
+                                </label>
                                 <input 
                                 type="text" 
                                 name="Comprobante Concar"                               
                                 className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5  " 
-                                defaultValue={venta["Comprobante Concar"]}
+                                value={ComproConcar?.["Comprobante Concar"]}
                                 onChange={handleChange} />
                             </div>
                             <div className="col-span-1">
-                                <label htmlFor="name" className="block mb-2 text-sm font-medium text-gray-900 ">Moneda</label>
+                                <label htmlFor="Moneda" className="block mb-2 text-sm font-medium text-gray-900 ">Moneda</label>
                                 <input 
                                 type="text"
                                 name="Moneda"                                 
                                 className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5  " 
-                                defaultValue={venta.Moneda}
+                                value={ComproConcar?.Moneda}
                                 onChange={handleChange}  />
                             </div>
                             <div className="col-span-1">
-                                <label htmlFor="name" className="block mb-2 text-sm font-medium text-gray-900 ">Fecha de emisión</label>
+                                <label htmlFor="Fecha de emisión" className="block mb-2 text-sm font-medium text-gray-900 ">Fecha de emisión</label>
                                 <input 
                                 type="date" 
                                 name="Fecha de emisión"
                                 className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 " 
-                                defaultValue={formatDateForInput(venta["Fecha de emisión"])} 
+                                value={formatDateForInput(ComproConcar?.["Fecha de emisión"])} 
                                 onChange={handleChange}
                                 />
                             </div>
                             <div className="col-span-1">
-                                <label htmlFor="name" className="block mb-2 text-sm font-medium text-gray-900 ">Fecha de Vencimiento</label>
+                                <label htmlFor="Fecha de Vencimiento" className="block mb-2 text-sm font-medium text-gray-900 ">Fecha de Vencimiento</label>
                                 <input 
                                 type="date" 
-                                name="name"  
+                                name="Fecha de Vencimiento"  
                                 className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5  " 
-                                defaultValue={formatDateForInput(venta["Fecha Vcto/Pago"])}
+                                value={formatDateForInput(ComproConcar?.["Fecha Vcto/Pago"])}
                                 onChange={handleChange} />
                             </div>
                             <div className="col-span-1">
@@ -119,149 +107,146 @@ import { Datacompo } from "../utils/utils"
                                 <select 
                                 id="category" 
                                 className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5  ">                                
-                                    <option defaultValue="FT">Factura</option>
-                                    <option defaultValue="BV">Boleta</option>
-                                    <option defaultValue="NA">N.Credito</option>
-                                    <option defaultValue="NC">N.Debito</option>
+                                    <option value="FT">Factura</option>
+                                    <option value="BV">Boleta</option>
+                                    <option value="NA">N.Credito</option>
+                                    <option value="NC">N.Debito</option>
                                 </select>
                             </div>
                             <div className="col-span-1">
-                                <label htmlFor="name" className="block mb-2 text-sm font-medium text-gray-900 ">Serie de documento</label>
-                                <input type="text" name="name"  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5  " 
-                                value={venta["Serie de documento"]}
-                                placeholder={venta["Serie de documento"]} />
+                                <label htmlFor="Serie de documento" className="block mb-2 text-sm font-medium text-gray-900 ">Serie de documento</label>
+                                <input type="text" name="Serie de documento"  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5  " 
+                                value={ComproConcar?.["Serie de documento"]}
+                                placeholder={ComproConcar?.["Serie de documento"]} />
                             </div>
                             <div className="col-span-1">
-                                <label htmlFor="name" className="block mb-2 text-sm font-medium text-gray-900 ">Número de documento</label>
-                                <input type="text" name="name"  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5  " 
-                                value={venta["Número de documento"]}
-                                placeholder={venta["Número de documento"]} />
+                                <label htmlFor="Número de documento" className="block mb-2 text-sm font-medium text-gray-900 ">Número de documento</label>
+                                <input type="text" name="Número de documento"  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5  " 
+                                value={ComproConcar?.["Número de documento"]}
+                                onChange={handleChange} />
                             </div>
                             <div className="col-span-1">
-                                <label htmlFor="name" className="block mb-2 text-sm font-medium text-gray-900 ">Tipo de D.I</label>
-                                <select id="category" className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5  ">
-                                    <option defaultValue="6">RUC</option>
-                                    <option defaultValue="1">DNI</option>
-                                    <option defaultValue="4">C.E</option>
-                                    <option defaultValue="0">Sin DI</option>
-                                    <option defaultValue="7">Pasaporte</option>
-                                    <option defaultValue="A">CDI</option>
+                                <label htmlFor="Tipo de D.I" className="block mb-2 text-sm font-medium text-gray-900 ">Tipo de D.I</label>
+                                <select name="Tipo de D.I" id="category" className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5  ">
+                                    <option value="6">RUC</option>
+                                    <option value="1">DNI</option>
+                                    <option value="4">C.E</option>
+                                    <option value="0">Sin DI</option>
+                                    <option value="7">Pasaporte</option>
+                                    <option value="A">CDI</option>
                                 </select>
                             </div>
                             <div className="col-span-1">
-                                <label htmlFor="name" className="block mb-2 text-sm font-medium text-gray-900 ">N° de D.I</label>
-                                <input type="text" name="name"  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5  " 
-                                value={venta["Número de documento de identidad"]}
-                                placeholder={venta["Número de documento de identidad"]} />
+                                <label htmlFor="Número de documento de identidad" className="block mb-2 text-sm font-medium text-gray-900 ">N° de D.I</label>
+                                <input type="text" name="Número de documento de identidad"  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5  " 
+                                value={ComproConcar?.["Número de documento de identidad"]}
+                                onChange={handleChange} />
                             </div>
                             <div className="col-span-2">
-                                <label htmlFor="name" className="block mb-2 text-sm font-medium text-gray-900 ">Razón Social Proveedor</label>
-                                <input type="text" name="name"  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5  " 
-                                value={venta["Apellidos y Nombres, denominación o razón social del proveedor"]}
-                                placeholder={venta["Apellidos y Nombres, denominación o razón social del proveedor"]} />
+                                <label htmlFor="Apellidos y Nombres, denominación o razón social del proveedor" className="block mb-2 text-sm font-medium text-gray-900 ">Razón Social Proveedor</label>
+                                <input type="text" name="Apellidos y Nombres, denominación o razón social del proveedor"  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5  " 
+                                value={ComproConcar?.["Apellidos y Nombres, denominación o razón social del proveedor"]}
+                                onChange={handleChange} />
                             </div>
                             <div className="col-span-1">
-                                <label htmlFor="name" className="block mb-2 text-sm font-medium text-gray-900 ">V. Exportación</label>
-                                <input type="number" name="name"  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5  " 
-                                defaultValue={venta["Valor facturado de la exportación"]}
-                                value={venta["Valor facturado de la exportación"]} 
+                                <label htmlFor="Valor facturado de la exportación" className="block mb-2 text-sm font-medium text-gray-900 ">V. Exportación</label>
+                                <input type="number" name="Valor facturado de la exportación"  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5  " 
+                                value={ComproConcar?.["Valor facturado de la exportación"]}
+                                onChange={handleChange}
                                 />
                                 
 
                             </div>
                             <div className="col-span-1">
-                                <label 
-                                htmlFor="name" 
-                                className="block mb-2 text-sm font-medium text-gray-900 ">B.I</label>
-                                <input 
-                                type="number" 
-                                name="name" 
-                                 
-                                className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5  " 
-                                defaultValue={venta["Base imponible de la operación gravada"]} 
-                                value={venta["Base imponible de la operación gravada"]}
+                                <label htmlFor="Base imponible de la operación gravada" className="block mb-2 text-sm font-medium text-gray-900 ">B.I</label>
+                                <input type="number"  name="Base imponible de la operación gravada" className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5  " 
+                                value={ComproConcar?.["Base imponible de la operación gravada"]} 
+                                onChange={handleChange}
                                 />
                             </div>
                             <div className="col-span-1">
-                                <label htmlFor="name" className="block mb-2 text-sm font-medium text-gray-900 ">V. Exonerada</label>
-                                <input type="number" name="name"  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5  " 
-                                defaultValue={venta["Importe total de la operación Exonerada"]} 
-                                value={venta["Importe total de la operación Exonerada"]} 
+                                <label htmlFor="Importe total de la operación Exonerada" className="block mb-2 text-sm font-medium text-gray-900 ">V. Exonerada</label>
+                                <input type="number" name="Importe total de la operación Exonerada"  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5  " 
+                                value={ComproConcar?.["Importe total de la operación Exonerada"]} 
+                                onChange={handleChange}
                                 />
                             </div>
                             <div className="col-span-1">
-                                <label htmlFor="name" className="block mb-2 text-sm font-medium text-gray-900 ">V. Inafecta</label>
-                                <input type="number" name="name"  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5  " 
-                                defaultValue={venta["Importe total de la operación Inafecta"]} 
-                                value={venta["Importe total de la operación Inafecta"]}
+                                <label htmlFor="Importe total de la operación Inafecta" className="block mb-2 text-sm font-medium text-gray-900 ">V. Inafecta</label>
+                                <input type="number" name="Importe total de la operación Inafecta"  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5  " 
+                                value={ComproConcar?.["Importe total de la operación Inafecta"]} 
+                                onChange={handleChange}
                                 />
                                 
                             </div>
                             <div className="col-span-1">
-                                <label htmlFor="name" className="block mb-2 text-sm font-medium text-gray-900 ">ISC</label>
-                                <input type="number" name="name"  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5  " 
-                                defaultValue={venta.ISC}
-                                value={venta.ISC}
+                                <label htmlFor="ISC" className="block mb-2 text-sm font-medium text-gray-900 ">ISC</label>
+                                <input type="number" name="ISC"  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5  " 
+                                value={ComproConcar?.ISC}
+                                onChange={handleChange}
                                 />
                             </div>
                             <div className="col-span-1">
-                                <label htmlFor="name" className="block mb-2 text-sm font-medium text-gray-900 ">IGV Y/O IPM</label>
-                                <input type="number" name="name"  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5  " 
-                                defaultValue={venta["IGV Y/O IPM"]} 
-                                value={venta["IGV Y/O IPM"]} 
+                                <label htmlFor="IGV Y/O IPM" className="block mb-2 text-sm font-medium text-gray-900 ">IGV Y/O IPM</label>
+                                <input type="number" name="IGV Y/O IPM"  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5  " 
+                                value={ComproConcar?.["IGV Y/O IPM"]} 
+                                onChange={handleChange} 
                                 />
                             </div>
                             <div className="col-span-1">
-                                <label htmlFor="name" className="block mb-2 text-sm font-medium text-gray-900 ">ICBPER</label>
-                                <input type="number" name="name"  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5  " 
-                                defaultValue={venta.ICBPER} 
-                                value={venta.ICBPER} 
+                                <label htmlFor="ICBPER" className="block mb-2 text-sm font-medium text-gray-900 ">ICBPER</label>
+                                <input type="number" name="ICBPER"  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5  " 
+                                value={ComproConcar?.ICBPER} 
+                                onChange={handleChange}
                                 />
                             </div>
                             <div className="col-span-1">
-                                <label htmlFor="name" className="block mb-2 text-sm font-medium text-gray-900 ">Otros tributos</label>
-                                <input type="number" name="name"  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5  " 
-                                defaultValue={venta["Otros tributos"]} 
-                                value={venta["Otros tributos"]} 
+                                <label htmlFor="Otros tributos" className="block mb-2 text-sm font-medium text-gray-900 ">Otros tributos</label>
+                                <input type="number" name="Otros tributos"  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5  " 
+                                value={ComproConcar?.["Otros tributos"]} 
+                                onChange={handleChange}
                                 />
                             </div>
                             <div className="col-span-1">
-                                <label htmlFor="name" className="block mb-2 text-sm font-medium text-gray-900 "> Importe total</label>
-                                <input type="number" name="name"  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5  " 
-                                defaultValue={venta["Importe total"]} 
-                                value={venta["Importe total"]} 
+                                <label htmlFor="Importe total" className="block mb-2 text-sm font-medium text-gray-900 ">Importe total</label>
+                                <input type="number" name="Importe total"  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5  " 
+                                value={ComproConcar?.["Importe total"]} 
+                                onChange={handleChange}
                                 />
                             </div>
                             <div className="col-span-1">
-                                <label htmlFor="name" className="block mb-2 text-sm font-medium text-gray-900 "> Tipo de Conversión</label>
-                                <input type="text" name="name"  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5  " 
-                                defaultValue={venta["Tipo de Conversión"]}
-                                value={venta["Tipo de Conversión"]}
+                                <label htmlFor="Tipo de Conversión" className="block mb-2 text-sm font-medium text-gray-900 "> Tipo de Conversión</label>
+                                <input type="text" name="Tipo de Conversión"  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5  " 
+                                value={ComproConcar?.["Tipo de Conversión"]}
+                                onChange={handleChange}
                                 />
                             </div>
                             <div className="col-span-1">
-                                <label htmlFor="name" className="block mb-2 text-sm font-medium text-gray-900 "> Tipo de cambio</label>
-                                <input type="text" name="name"  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5  " 
-                                defaultValue={venta["Tipo de cambio"]} 
-                                value={venta["Tipo de cambio"]} 
+                                <label htmlFor="Tipo de cambio" className="block mb-2 text-sm font-medium text-gray-900 "> Tipo de cambio</label>
+                                <input type="text" name="Tipo de cambio"  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5  " 
+                                value={ComproConcar?.["Tipo de cambio"]} 
+                                onChange={handleChange}
                                 />
                             </div>
                             <div className="col-span-1">
-                                <label htmlFor="name" className="block mb-2 text-sm font-medium text-gray-900 "> Cuenta contable por cobrar</label>
-                                <input type="text" name="name"  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5  " 
-                                defaultValue={venta["Cuenta contable por cobrar"]} 
-                                value={venta["Cuenta contable por cobrar"]} 
+                                <label htmlFor="Cuenta contable por cobrar" className="block mb-2 text-sm font-medium text-gray-900 "> Cuenta contable por cobrar</label>
+                                <input type="text" name="Cuenta contable por cobrar"  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5  " 
+                                value={ComproConcar?.["Cuenta contable por cobrar"]} 
+                                onChange={handleChange}
                                 />
                             </div>
                             <div className="col-span-1">
-                                <label htmlFor="name" className="block mb-2 text-sm font-medium text-gray-900 "> Cuenta contable de ingresos</label>
-                                <input type="text" name="name"  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5  " 
-                                defaultValue={venta["Cuenta contable de ingresos"]} 
-                                value={venta["Cuenta contable de ingresos"]}
+                                <label htmlFor="Cuenta contable de ingresos" className="block mb-2 text-sm font-medium text-gray-900 "> Cuenta contable de ingresos</label>
+                                <input type="text" name="Cuenta contable de ingresos"  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5  " 
+                                value={ComproConcar?.["Cuenta contable de ingresos"]} 
+                                onChange={handleChange}
                                 />
                             </div>   
                         </div>
-                        <button type="submit" className="text-white inline-flex items-center bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center ">
+                        <button 
+                            type="submit" 
+                            className="text-white inline-flex items-center bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center "
+                        >
                         <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="currentColor"  className=" mr-1"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M18.333 2c1.96 0 3.56 1.537 3.662 3.472l.005 .195v12.666c0 1.96 -1.537 3.56 -3.472 3.662l-.195 .005h-12.666a3.667 3.667 0 0 1 -3.662 -3.472l-.005 -.195v-12.666c0 -1.96 1.537 -3.56 3.472 -3.662l.195 -.005h12.666zm-2.626 7.293a1 1 0 0 0 -1.414 0l-3.293 3.292l-1.293 -1.292l-.094 -.083a1 1 0 0 0 -1.32 1.497l2 2l.094 .083a1 1 0 0 0 1.32 -.083l4 -4l.083 -.094a1 1 0 0 0 -.083 -1.32z" /></svg>
                             Guardar cambios
                         </button>

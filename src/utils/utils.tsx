@@ -373,20 +373,25 @@ const convertToNumber = (value: string | number): number => {
 
 // Define la constante para la selección de filas
 export const rowSelectCritera = (row: Datacompo): boolean => {
+    const valorExport = convertToNumber(row["Valor facturado de la exportación"])
     const importeTotal = convertToNumber(row["Importe total"]);
     const igvIpm = convertToNumber(row["IGV Y/O IPM"]);
     const baseImponible = convertToNumber(row["Base imponible de la operación gravada"]);
-    return importeTotal === (igvIpm + baseImponible);
+    
+    return importeTotal === Math.round((igvIpm + baseImponible + valorExport)*100)/100;
 };
 
 // Define la constante para los estilos condicionales de las filas
 export const conditionalRowStyles = [
     {
         when: (row: Datacompo) => {
+            const valorExport = convertToNumber(row["Valor facturado de la exportación"])
             const importeTotal = convertToNumber(row["Importe total"]);
             const igvIpm = convertToNumber(row["IGV Y/O IPM"]);
             const baseImponible = convertToNumber(row["Base imponible de la operación gravada"]);
-            return importeTotal !== (igvIpm + baseImponible);
+            return importeTotal  !== Math.round((igvIpm + baseImponible + valorExport)*100)/100;
+        
+            
         },
         style: {
             backgroundColor: 'rgb(220 38 38 / 0.15)',
@@ -395,8 +400,9 @@ export const conditionalRowStyles = [
    
 ];
 export const rowDisabledCriteria = (row: Datacompo): boolean => {
+    const valorExport = convertToNumber(row["Valor facturado de la exportación"])
     const importeTotal = convertToNumber(row["Importe total"]);
     const igvIpm = convertToNumber(row["IGV Y/O IPM"]);
     const baseImponible = convertToNumber(row["Base imponible de la operación gravada"]);
-    return importeTotal !== (igvIpm + baseImponible);
+    return importeTotal !== Math.round((igvIpm + baseImponible + valorExport)*100)/100
 };

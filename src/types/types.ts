@@ -1,9 +1,11 @@
+
 import { Datacompo } from "../utils/utils";
 
 export interface EditComprobante{
+    setComproConcar:React.Dispatch<React.SetStateAction<Datacompo | undefined>>,
     setEdit: (b:boolean) => void,
     ventasData: Datacompo[],
-    ComproConcar: string,
-    setComproConcar:(b:string)=>void,
-    setVentasData:(b:Datacompo[])=>void
+    ComproConcar: Datacompo | undefined,
+    setVentasData:(b:Datacompo[])=>void,
+    guardarComprobante:(arg:Datacompo | undefined )=>void
 }   

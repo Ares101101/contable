@@ -1,7 +1,8 @@
 import { useState,  ChangeEvent, FormEvent, useEffect } from 'react';
-import DataTable, { TableColumn } from 'react-data-table-component';
+import DataTable from 'react-data-table-component';
 import columns, { conditionalRowStyles, Datacompo, FormatearJson, rowDisabledCriteria, rowSelectCritera } from '../utils/utils';
 import EditComprobante from './EditComprobante';
+import * as XLSX from 'xlsx';
 
 export default function Ventas(){
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -13,7 +14,15 @@ export default function Ventas(){
     const [Costo, setCosto] = useState<string>("")
     const [Referencia, setReferencia] = useState<string>("")
     const [onEdit, setEdit]= useState<boolean>(false)
-    const [ComproConcar, setComproConcar]= useState<string>("")
+    const [ComproConcar, setComproConcar]= useState<Datacompo|undefined>()
+    const [baseWorkbook, setBaseWorkbook] = useState<null | XLSX.WorkBook>(null); 
+
+    const cargarBase = async () => {
+        const response = await fetch("/CargaVentasMasivo.xlsx"); // La ruta desde 'public'
+        const data = await response.arrayBuffer();
+        const workbook = XLSX.read(data, { type: "array" });
+        setBaseWorkbook(workbook);
+    };
 
     const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
         const file = event.target.files?.[0]
@@ -21,6 +30,19 @@ export default function Ventas(){
             setSelectedFile(file);
         }
     };
+
+    const guardarComprobante = (compro:Datacompo | undefined )=>{
+        event?.preventDefault()
+        console.log(ventasData)
+        console.log(compro)
+        const newVentasData = ventasData.map((data)=>{
+            if(data['Comprobante Concar'] === compro?.['Comprobante Concar']){
+                return compro
+            }else return data
+        })
+        setVentasData(newVentasData)
+        setEdit(false)
+    }
 
     const handleSubmit = (event:FormEvent) => {
         event.preventDefault()
@@ -73,19 +95,90 @@ export default function Ventas(){
         selectAllRowsItemText: 'Todos',
     };
     
-    const onEditFunt = (row:Datacompo["Comprobante Concar"])=>{
+    const onEditFunt = (row:Datacompo)=>{
         setComproConcar(row)
         setEdit(true)
     }
 
+    const GenerarExcel = () => {
+        if (!baseWorkbook) {
+            alert("Por favor, carga el archivo base primero.");
+            return;
+        }
+    
+        // Obtener la hoja que deseas modificar
+        const dataSheetName = baseWorkbook.SheetNames[0];
+        const worksheet = baseWorkbook.Sheets[dataSheetName];
+    
+        // Convertir la hoja actual a un formato JSON para calcular el número de filas existentes
+        const existingData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+        const startRow = 3; // Siguiente fila disponible para agregar datos
+    
+        // Preparar los datos de ventasData en el formato de un arreglo de arreglos (filas)
+        const ventasDataRows = ventasData.map((venta) => [
+            venta.SubDiario, venta["Comprobante Concar"], venta.Moneda,
+            venta["Fecha de emisión"],
+            venta["Fecha Vcto/Pago"],
+            venta["Tipo de Documento"], venta["Serie de documento"],
+            venta["Número de documento"], venta["Tipo de documento de Identidad"],
+            venta["Número de documento de identidad"],
+            venta["Apellidos y Nombres, denominación o razón social del proveedor"],
+            venta["Valor facturado de la exportación"],
+            venta["Base imponible de la operación gravada"],
+            venta["Importe total de la operación Exonerada"],
+            venta["Importe total de la operación Inafecta"],
+            venta.ISC, venta["IGV Y/O IPM"], venta.ICBPER,
+            venta["Otros tributos"], venta["Importe total"],
+            venta["Tipo de Conversión"], venta["Tipo de cambio"],
+            venta["Referencia del comprobante de pago que se modifica Fecha"],
+            venta["Referencia del comprobante de pago que se modifica Tipo"],
+            venta["Referencia del comprobante de pago que se modifica Serie"],
+            venta["Referencia del comprobante de pago que se modifica Numero"],
+            venta["Cuenta contable por cobrar"],
+            venta["Cuenta contable de ingresos"], venta.Area,
+            venta["Centro de Costo"], venta["Anexo de Referencia"]
+        ]);
+    
+        // Agregar las filas de ventasData al worksheet
+        ventasDataRows.forEach((row, index) => {
+            row.forEach((value, colIndex) => {
+                const cellAddress = XLSX.utils.encode_cell({ r: startRow + index, c: colIndex + 1 });
+                worksheet[cellAddress] = { v: value };
+            });
+        });
+    
+    
+        // Crear un nuevo libro de trabajo y agregar la hoja actualizada
+        const newWorkbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(newWorkbook, worksheet, dataSheetName);
+    
+        // Escribir el nuevo libro de trabajo en un buffer
+        const excelBuffer = XLSX.write(newWorkbook, { bookType: "xlsx", type: "array" });
+    
+        // Crear un blob con el buffer para la descarga
+        const blob = new Blob([excelBuffer], { type: "application/octet-stream" });
+    
+        // Crear un enlace y simular un clic para descargar
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = "ventas_cargamasivo.xlsx";
+        link.click();
+    
+        // Liberar el objeto URL después de usarlo
+        URL.revokeObjectURL(url);
+    };
+    
+    
     useEffect(()=>{
+        cargarBase()
         columns.unshift({	
             name:"Editar - Eliminar",		
             cell: (row:Datacompo) =>( 
-            <div className=" flex gap-2 justify-evenly w-full">
+            <div className=" flex gap-2 w-full">
                 <button 
                     className=" bg-sky-600 rounded-md text-white p-1"
-                    onClick={()=>onEditFunt(row["Comprobante Concar"])}
+                    onClick={()=>onEditFunt(row)}
                 >
                     <svg  xmlns="http://www.w3.org/2000/svg"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  strokeWidth="2"  strokeLinecap="round"  strokeLinejoin="round"  className=" size-4">
                     <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
@@ -226,7 +319,7 @@ export default function Ventas(){
                 <div className='mx-2'>
                     <button
                             className="rounded bg-slate-100 shadow-md text-black  px-2 py-1 m-auto mt-4 w-full text-xl"
-                            type="submit"
+                            onClick={GenerarExcel}
                         >
                         Generar Formato
                     </button> 
@@ -235,11 +328,12 @@ export default function Ventas(){
             {
                 onEdit&&(
                 <EditComprobante 
-                    setComproConcar={setComproConcar} 
+                    setComproConcar={setComproConcar}
                     ComproConcar={ComproConcar} 
                     ventasData={ventasData}  
                     setEdit={setEdit}
                     setVentasData={setVentasData}
+                    guardarComprobante={guardarComprobante}
                     />)
             }
         </div>

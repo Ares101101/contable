@@ -1,7 +1,6 @@
+
 export default function Compras(){
-    return (
-        <div>
-            
-        </div>
+    return(
+        <div></div>
     )
 }
